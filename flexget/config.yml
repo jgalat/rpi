@@ -1,5 +1,4 @@
-web_server:
-  run_v1: true
+web_server: yes
 
 schedules:
   - tasks: '*'
@@ -8,7 +7,7 @@ schedules:
 
 tasks:
   sort_series:
-    priority: 2
+    priority: 1
     no_entries_ok: yes
     parsing:
       series: guessit
@@ -32,7 +31,7 @@ tasks:
           fi
 
   sort_movies:
-    priority: 2
+    priority: 1
     no_entries_ok: yes
     filesystem:
       path: /downloads/complete
@@ -52,6 +51,7 @@ tasks:
          fi
 
   remove_complete_torrents:
+    priority: 10
     from_transmission:
       host: transmission
       port: 9091
@@ -68,6 +68,7 @@ tasks:
       action: purge
 
   get_subtitles:
+    priority: 20
     filesystem:
       path:
         - /storage/movies

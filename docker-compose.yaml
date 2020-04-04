@@ -1,20 +1,20 @@
 version: "2"
 
 services:
-  # plex:
-  #   image: jaymoulin/plex:1.16.5
-  #   expose:
-  #     - 32400
-  #     - 33400
-  #   hostname: raspberrypi
-  #   volumes:
-  #     - ${STORAGE}/Plex Media Server:/root/Library/Application Support/Plex Media Server
-  #     - ${MEDIA}:/media
-  #     - ${STORAGE}/tmp:/tmp
-  #   restart: unless-stopped
-  #   networks: 
-  #     lan:
-  #       ipv4_address: 192.168.0.102
+  jellyfin:
+    image: linuxserver/jellyfin:arm32v7-20200404-ls55
+    expose:
+      - 8096
+    hostname: raspberrypi
+    volumes:
+      - ${STORAGE}/Jellyfin:/config
+      - ${MEDIA}:/media
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Argentina/Buenos_Aires
+    restart: unless-stopped
+    network_mode: "host"
 
   transmission:
     image : jaymoulin/transmission
@@ -44,13 +44,3 @@ services:
     restart: unless-stopped
     links:
       - transmission
-
-# networks:
-#   lan:
-#     driver: macvlan
-#     driver_opts:
-#       parent: wlp1s0
-#     ipam:
-#       config:
-#         - subnet: "192.168.0.0/24"       
-#           gateway: "192.168.0.1"
