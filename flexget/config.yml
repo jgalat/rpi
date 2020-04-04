@@ -17,10 +17,10 @@ templates:
           propers: 12 hours
           quality: 720p
       tv:
-      - Brooklyn Nine-Nine
-      - Rick and Morty
-      - The Office
-      - Parks and Recreation
+        - Brooklyn Nine-Nine
+        - Rick and Morty
+        - The Office
+        - Parks and Recreation
 
     transmission:
       host: transmission

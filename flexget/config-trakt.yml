@@ -22,17 +22,17 @@ templates:
 
 
   movies:
-        trakt_list:
-          username: jgalat
-          account: jgalat
-          strip_dates: yes
-          list: movies
-          type: movies
-        seen: local
-        no_entries_ok: yes
-        accept_all: yes
-        trakt_lookup: yes
-        priority: 10
+    trakt_list:
+      username: jgalat
+      account: jgalat
+      strip_dates: yes
+      list: movies
+      type: movies
+    seen: local
+    no_entries_ok: yes
+    accept_all: yes
+    trakt_lookup: yes
+    priority: 10
 
 tasks:
   sync-series:
@@ -40,11 +40,11 @@ tasks:
     no_entries_ok: yes
     trakt_lookup: yes
     trakt_list:
-          username: jgalat
-          account: jgalat
-          strip_dates: yes
-          list: series
-          type: shows
+      username: jgalat
+      account: jgalat
+      strip_dates: yes
+      list: series
+      type: shows
     accept_all: yes
     set_series_begin: yes
     list_remove:
@@ -60,10 +60,10 @@ tasks:
           list: series
           type: shows
     next_trakt_episodes:
-        username: jgalat
-        account: jgalat
-        context: watched
-        list: series
+      username: jgalat
+      account: jgalat
+      context: watched
+      list: series
 
   sync-movies:
     trakt_list:
@@ -74,7 +74,7 @@ tasks:
     list_add:
       - movie_list: movies
       
-discover-series:
+  discover-series:
     template: tv
     discover:
       what:
@@ -99,12 +99,12 @@ discover-series:
               - link
               - magneturi
     list_match:
-              from:
-                - trakt_list:
-                   username: jgalat
-                   account: jgalat
-                   list: series
-                   type: shows
+      from:
+        - trakt_list:
+            username: jgalat
+            account: jgalat
+            list: series
+            type: shows
     torrent_alive: 10
     transmission:
       host: transmission
@@ -112,9 +112,9 @@ discover-series:
       username: admin
       password: "123456"
 
- discover-movies:
+  discover-movies:
     template: movies
-    quality: 720p+ hdtv+ # Make sure no screeners or cams are downloaded
+    quality: 720p+ hdtv+
     discover:
       what:
         - movie_list:
@@ -146,7 +146,7 @@ discover-series:
       username: admin
       password: "123456"
 
- sort_tv:
+  sort_tv:
     priority: 2
     no_entries_ok: yes
     parsing:
@@ -170,7 +170,7 @@ discover-series:
             mkdir -p "/storage/series/{{ tvdb_series_name }}/Season {{ series_season }}" && cp "{{ location }}" "/storage/series/{{ tvdb_series_name }}/Season {{ series_season }}/{{ tvdb_series_name }} - {{ series_id }}{{ location | pathext }}"
           fi
 
- sort_movies:
+  sort_movies:
     priority: 2
     no_entries_ok: yes
     filesystem:
