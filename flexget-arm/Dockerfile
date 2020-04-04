@@ -1,12 +1,18 @@
-FROM armhf/alpine
+FROM arm32v7/alpine:3.11
 MAINTAINER bren
 
+
+ENV LIBRARY_PATH=/lib:/usr/lib
+
 RUN apk add --update \
-  tzdata \
-  python \
-  py-pip \
   ca-certificates \
-  && pip install --no-cache-dir --disable-pip-version-check flexget==2.21.0 transmissionrpc==0.11 \
+  tzdata \
+  python3-dev \
+  gcc \
+  musl-dev \
+  jpeg-dev \
+  zlib-dev \
+  && pip3 install --no-cache-dir --disable-pip-version-check flexget==3.1.47 subliminal==2.0.5 transmissionrpc==0.11 \
   && rm -rf /var/cache/apk/*
 
 RUN apk add --update --repository http://dl-cdn.alpinelinux.org/alpine/edge/main tinyxml2 && \

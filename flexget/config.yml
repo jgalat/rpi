@@ -1,39 +1,13 @@
-web_server: yes
+web_server:
+  run_v1: true
 
 schedules:
   - tasks: '*'
     interval:
       minutes: 30
 
-templates:
-  tv:
-    regexp:
-      reject:
-        - x265: {from: title}
-    series:
-      settings:
-        tv:
-          exact: yes
-          propers: 12 hours
-          quality: 720p
-      tv:
-        - Brooklyn Nine-Nine
-        - Rick and Morty
-        - The Office
-        - Parks and Recreation
-
-    transmission:
-      host: transmission
-      port: 9091
-      username: admin
-      password: "123456"
-
 tasks:
-  eztvrss:
-    rss: https://eztv.ag/ezrss.xml
-    template: tv
-    priority: 2
-  sort_tv:
+  sort_series:
     priority: 2
     no_entries_ok: yes
     parsing:
@@ -56,6 +30,7 @@ tasks:
           else
             mkdir -p "/storage/series/{{ tvdb_series_name }}/Season {{ series_season }}" && cp "{{ location }}" "/storage/series/{{ tvdb_series_name }}/Season {{ series_season }}/{{ tvdb_series_name }} - {{ series_id }}{{ location | pathext }}"
           fi
+
   sort_movies:
     priority: 2
     no_entries_ok: yes
@@ -75,7 +50,8 @@ tasks:
          else
            mkdir -p "/storage/movies/{{ movie_name }} ({{ movie_year }})" && cp "{{ location }}" "/storage/movies/{{ movie_name }} ({{ movie_year }})/{{ movie_name }} ({{ movie_year }}){{ location | pathext }}"
          fi
-  remove_stale_torrents:
+
+  remove_complete_torrents:
     from_transmission:
       host: transmission
       port: 9091
@@ -84,11 +60,35 @@ tasks:
     disable: [seen, seen_info_hash]
     if:
       - transmission_progress == 100: accept
-      - not transmission_seed_ratio_ok: reject
-      - not transmission_idle_limit_ok: reject
     transmission:
       host: transmission
       port: 9091
       username: admin
       password: "123456"
       action: purge
+
+  get_subtitles:
+    filesystem:
+      path:
+        - /storage/movies
+        - /storage/series
+      regexp: '.*\.(avi|mkv|mp4)$'
+      recursive: yes
+    accept_all: yes
+    seen: local
+    subliminal:
+      languages:
+        - es
+      alternatives:
+        - en
+      exact_match: yes
+      providers: [addic7ed, opensubtitles, tvsubtitles]
+      single: no
+      hearing_impaired: yes
+      authentication:
+        addic7ed:
+          username: jgalat
+          password: supersecret
+        opensubtitles:
+          username: jgalat
+          password: supersecret
