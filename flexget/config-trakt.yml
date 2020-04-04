@@ -6,7 +6,7 @@ templates:
       from:
         trakt_list:
           username: jgalat
-          account: flexget
+          account: jgalat
           strip_dates: yes
           list: series
           type: shows
@@ -24,7 +24,7 @@ templates:
   movies:
         trakt_list:
           username: jgalat
-          account: flexget
+          account: jgalat
           strip_dates: yes
           list: movies
           type: movies
@@ -41,7 +41,7 @@ tasks:
     trakt_lookup: yes
     trakt_list:
           username: jgalat
-          account: flexget
+          account: jgalat
           strip_dates: yes
           list: series
           type: shows
@@ -50,25 +50,25 @@ tasks:
     list_remove:
       - trakt_list:
           username: jgalat
-          account: flexget
+          account: jgalat
           list: series
           type: shows
     list_add:
       - trakt_list:
           username: jgalat
-          account: flexget
+          account: jgalat
           list: series
           type: shows
     next_trakt_episodes:
         username: jgalat
-        account: flexget
+        account: jgalat
         context: watched
         list: series
 
   sync-movies:
     trakt_list:
       username: jgalat
-      account: flexget
+      account: jgalat
       list: movies
     accept_all: yes
     list_add:
@@ -80,7 +80,7 @@ discover-series:
       what:
         - next_trakt_episodes:
             username: jgalat
-            account: flexget
+            account: jgalat
             context: watched
             list: series
       from:
@@ -102,7 +102,7 @@ discover-series:
               from:
                 - trakt_list:
                    username: jgalat
-                   account: flexget
+                   account: jgalat
                    list: series
                    type: shows
     torrent_alive: 10
