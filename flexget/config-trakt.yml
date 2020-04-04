@@ -1,0 +1,214 @@
+web_server: yes
+
+templates:  
+  series:
+    configure_series:
+      from:
+        trakt_list:
+          username: jgalat
+          account: flexget
+          strip_dates: yes
+          list: series
+          type: shows
+      settings:
+          exact: yes
+          propers: 12 hours
+          quality: 720p+ hdtv+
+    priority: 2
+    seen: local
+    no_entries_ok: yes
+    accept_all: yes
+    trakt_lookup: yes
+
+
+  movies:
+        trakt_list:
+          username: jgalat
+          account: flexget
+          strip_dates: yes
+          list: movies
+          type: movies
+        seen: local
+        no_entries_ok: yes
+        accept_all: yes
+        trakt_lookup: yes
+        priority: 10
+
+tasks:
+  sync-series:
+    seen: local
+    no_entries_ok: yes
+    trakt_lookup: yes
+    trakt_list:
+          username: jgalat
+          account: flexget
+          strip_dates: yes
+          list: series
+          type: shows
+    accept_all: yes
+    set_series_begin: yes
+    list_remove:
+      - trakt_list:
+          username: jgalat
+          account: flexget
+          list: series
+          type: shows
+    list_add:
+      - trakt_list:
+          username: jgalat
+          account: flexget
+          list: series
+          type: shows
+    next_trakt_episodes:
+        username: jgalat
+        account: flexget
+        context: watched
+        list: series
+
+  sync-movies:
+    trakt_list:
+      username: jgalat
+      account: flexget
+      list: movies
+    accept_all: yes
+    list_add:
+      - movie_list: movies
+      
+discover-series:
+    template: tv
+    discover:
+      what:
+        - next_trakt_episodes:
+            username: jgalat
+            account: flexget
+            context: watched
+            list: series
+      from:
+        - argenteam:
+            force_subtitles: yes
+        - piratebay:
+            category: video
+            sort_by: leechers
+            url: https://piratebaymirror.eu
+        - search_rss:
+            url: https://eztv.ag/ezrss.xml
+            all_entries: no
+            ascii: yes
+            escape: yes
+            link:
+              - link
+              - magneturi
+    list_match:
+              from:
+                - trakt_list:
+                   username: jgalat
+                   account: flexget
+                   list: series
+                   type: shows
+    torrent_alive: 10
+    transmission:
+      host: transmission
+      port: 9091
+      username: admin
+      password: "123456"
+
+ discover-movies:
+    template: movies
+    quality: 720p+ hdtv+ # Make sure no screeners or cams are downloaded
+    discover:
+      what:
+        - movie_list:
+            list_name: movies
+            strip_year: yes
+      from:
+        - argenteam:
+            force_subtitles: yes
+        - piratebay:
+            category: video
+            sort_by: leechers
+            url: https://piratebaymirror.eu
+        - search_rss:
+            url: https://eztv.ag/ezrss.xml
+            all_entries: no
+            ascii: yes
+            escape: yes
+            link:
+              - link
+              - magneturi
+      interval: 1 days
+    list_match:
+      from:
+        - movie_list: lista-pelis
+    torrent_alive: 10
+    transmission:
+      host: transmission
+      port: 9091
+      username: admin
+      password: "123456"
+
+ sort_tv:
+    priority: 2
+    no_entries_ok: yes
+    parsing:
+      series: guessit
+    filesystem:
+      path: /downloads/complete
+      regexp: '.*\.(avi|mkv|mp4)$'
+      recursive: yes
+    accept_all: yes
+    thetvdb_lookup: yes
+    require_field: series_name
+    all_series:
+      parse_only: yes
+    exec:
+      auto_escape: yes
+      on_output:
+        for_entries: |
+          if mediainfo "{{ location }}" | grep EAC3; then
+            mkdir -p "/storage/series/{{ tvdb_series_name }}/Season {{ series_season }}" && ffmpeg -hwaccel auto -y -i "{{ location }}" -map 0 -c:s copy -c:v copy -c:a ac3 -b:a 640k "/storage/series/{{ tvdb_series_name }}/Season {{ series_season }}/{{ tvdb_series_name }} - {{ series_id }}{{ location | pathext }}"
+          else
+            mkdir -p "/storage/series/{{ tvdb_series_name }}/Season {{ series_season }}" && cp "{{ location }}" "/storage/series/{{ tvdb_series_name }}/Season {{ series_season }}/{{ tvdb_series_name }} - {{ series_id }}{{ location | pathext }}"
+          fi
+
+ sort_movies:
+    priority: 2
+    no_entries_ok: yes
+    filesystem:
+      path: /downloads/complete
+      regexp: '.*\.(avi|mkv|mp4)$'
+      recursive: yes
+    accept_all: yes
+    require_field: movie_name
+    imdb_lookup: yes
+    exec:
+      auto_escape: yes
+      on_output:
+       for_entries: |
+         if mediainfo "{{ location }}" | grep EAC3; then
+           mkdir -p "/storage/movies/{{ movie_name }} ({{ movie_year }})" && ffmpeg -hwaccel auto -y -i "{{ location }}" -map 0 -c:s copy -c:v copy -c:a ac3 -b:a 640k "/storage/movies/{{ movie_name }} ({{ movie_year }})/{{ movie_name }} ({{ movie_year }}){{ location | pathext }}"
+         else
+           mkdir -p "/storage/movies/{{ movie_name }} ({{ movie_year }})" && cp "{{ location }}" "/storage/movies/{{ movie_name }} ({{ movie_year }})/{{ movie_name }} ({{ movie_year }}){{ location | pathext }}"
+         fi
+
+  remove-stale-torrents:
+    from_transmission:
+      host: transmission
+      port: 9091
+      username: admin
+      password: "123456"
+    disable: [seen, seen_info_hash]
+    if:
+      - transmission_progress == 100: accept
+            - not transmission_seed_ratio_ok: reject
+      - not transmission_idle_limit_ok: reject
+    transmission:
+      host: transmission
+      port: 9091
+      username: admin
+      password: "123456"
+      action: purge
+
+schedules:
+  - tasks: '*'
+    interval:
+      minutes: 30
