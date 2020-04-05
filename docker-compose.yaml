@@ -40,7 +40,7 @@ services:
       - 5050:5050
     environment:
       - TORRENT_PLUGIN=transmission
-      - FG_WEBUI_PASSWD=MySuperSecretPassword421
+      - FG_WEBUI_PASSWD=superSecret421
     restart: unless-stopped
     links:
       - transmission

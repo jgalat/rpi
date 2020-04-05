@@ -1,21 +1,31 @@
 web_server: yes
 
 schedules:
-  - tasks: '*'
+  - tasks: [sort_series, sort_movies]
     interval:
       minutes: 30
+  - tasks: [get_subtitles]
+    interval:
+      hours: 1
+  - tasks: [remove_complete_torrents]
+    interval:
+      hours: 2
 
-tasks:
-  sort_series:
-    priority: 1
-    no_entries_ok: yes
-    parsing:
-      series: guessit
+templates:
+  complete_downloads:
     filesystem:
       path: /downloads/complete
       regexp: '.*\.(avi|mkv|mp4)$'
       recursive: yes
     accept_all: yes
+
+tasks:
+  sort_series:
+    priority: 1
+    no_entries_ok: yes
+    template: complete_downloads
+    parsing:
+      series: guessit
     thetvdb_lookup: yes
     require_field: series_name
     all_series:
@@ -33,11 +43,7 @@ tasks:
   sort_movies:
     priority: 1
     no_entries_ok: yes
-    filesystem:
-      path: /downloads/complete
-      regexp: '.*\.(avi|mkv|mp4)$'
-      recursive: yes
-    accept_all: yes
+    template: complete_downloads
     require_field: movie_name
     imdb_lookup: yes
     exec:
@@ -50,8 +56,39 @@ tasks:
            mkdir -p "/storage/movies/{{ movie_name }} ({{ movie_year }})" && cp "{{ location }}" "/storage/movies/{{ movie_name }} ({{ movie_year }})/{{ movie_name }} ({{ movie_year }}){{ location | pathext }}"
          fi
 
-  remove_complete_torrents:
+  get_subtitles:
     priority: 10
+    filesystem:
+      path:
+        - /storage/movies
+        - /storage/series
+      regexp: '.*\.(avi|mkv|mp4)$'
+      recursive: yes
+    accept_all: yes
+    seen: local
+    subliminal:
+      languages:
+        - en
+      alternatives:
+        - es
+      exact_match: no
+      providers:
+        - addic7ed
+        - opensubtitles
+        - thesubdb
+        - tvsubtitles
+      single: no
+      authentication:
+        addic7ed:
+          username: jgalat
+          password: supersecret
+        opensubtitles:
+          username: jgalat
+          password: supersecret
+
+  remove_complete_torrents:
+    priority: 50
+    no_entries_ok: yes
     from_transmission:
       host: transmission
       port: 9091
@@ -66,30 +103,3 @@ tasks:
       username: admin
       password: "123456"
       action: purge
-
-  get_subtitles:
-    priority: 20
-    filesystem:
-      path:
-        - /storage/movies
-        - /storage/series
-      regexp: '.*\.(avi|mkv|mp4)$'
-      recursive: yes
-    accept_all: yes
-    seen: local
-    subliminal:
-      languages:
-        - es
-      alternatives:
-        - en
-      exact_match: yes
-      providers: [addic7ed, opensubtitles, tvsubtitles]
-      single: no
-      hearing_impaired: yes
-      authentication:
-        addic7ed:
-          username: jgalat
-          password: supersecret
-        opensubtitles:
-          username: jgalat
-          password: supersecret
