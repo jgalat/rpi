@@ -69,9 +69,7 @@ tasks:
     subliminal:
       languages:
         - en
-      alternatives:
-        - es
-      exact_match: no
+      exact_match: yes
       providers:
         - addic7ed
         - opensubtitles
@@ -93,7 +91,7 @@ tasks:
       host: transmission
       port: 9091
       username: admin
-      password: "123456"
+      password: "supersecret"
     disable: [seen, seen_info_hash]
     if:
       - transmission_progress == 100: accept
@@ -101,5 +99,5 @@ tasks:
       host: transmission
       port: 9091
       username: admin
-      password: "123456"
+      password: "supersecret"
       action: purge
