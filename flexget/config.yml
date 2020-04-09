@@ -1,15 +1,12 @@
-web_server: yes
+web_server: no
 
 schedules:
-  - tasks: [sort_series, sort_movies]
+  - tasks: [copy_series, copy_movies]
     interval:
       minutes: 30
-  - tasks: [get_subtitles]
-    interval:
-      hours: 1
   - tasks: [remove_complete_torrents]
     interval:
-      hours: 2
+      hours: 6
 
 templates:
   complete_downloads:
@@ -20,41 +17,39 @@ templates:
     accept_all: yes
 
 tasks:
-  sort_series:
+  copy_series:
     priority: 1
     no_entries_ok: yes
     template: complete_downloads
     parsing:
       series: guessit
-    thetvdb_lookup: yes
-    require_field: series_name
     all_series:
       parse_only: yes
-    exec:
-      auto_escape: yes
-      on_output:
-        for_entries: |
-          if mediainfo "{{ location }}" | grep EAC3; then
-            mkdir -p "/storage/series/{{ tvdb_series_name }}/Season {{ series_season }}" && ffmpeg -hwaccel auto -y -i "{{ location }}" -map 0 -c:s copy -c:v copy -c:a ac3 -b:a 640k "/storage/series/{{ tvdb_series_name }}/Season {{ series_season }}/{{ tvdb_series_name }} - {{ series_id }}{{ location | pathext }}"
-          else
-            mkdir -p "/storage/series/{{ tvdb_series_name }}/Season {{ series_season }}" && cp "{{ location }}" "/storage/series/{{ tvdb_series_name }}/Season {{ series_season }}/{{ tvdb_series_name }} - {{ series_id }}{{ location | pathext }}"
-          fi
+    thetvdb_lookup: yes
+    require_field: series_name
+    copy:
+      to: '/storage/series/{{ tvdb_series_name }}/Season {{ series_season }}'
+    exec: |
+      sub_file=`find "{{ old_location|pathdir }}" -name "{{ title }}.srt" -o -name "{{ title }}.sub"`
+      ext="${sub_file: -3}"
+      if [ ! -z "${sub_file}" ]; then
+        cp "${sub_file}" "/storage/series/{{ tvdb_series_name }}/Season {{ series_season }}/{{ title }}.en.${ext}"
+      fi
 
-  sort_movies:
+  copy_movies:
     priority: 1
     no_entries_ok: yes
     template: complete_downloads
     require_field: movie_name
     imdb_lookup: yes
-    exec:
-      auto_escape: yes
-      on_output:
-       for_entries: |
-         if mediainfo "{{ location }}" | grep EAC3; then
-           mkdir -p "/storage/movies/{{ movie_name }} ({{ movie_year }})" && ffmpeg -hwaccel auto -y -i "{{ location }}" -map 0 -c:s copy -c:v copy -c:a ac3 -b:a 640k "/storage/movies/{{ movie_name }} ({{ movie_year }})/{{ movie_name }} ({{ movie_year }}){{ location | pathext }}"
-         else
-           mkdir -p "/storage/movies/{{ movie_name }} ({{ movie_year }})" && cp "{{ location }}" "/storage/movies/{{ movie_name }} ({{ movie_year }})/{{ movie_name }} ({{ movie_year }}){{ location | pathext }}"
-         fi
+    copy:
+      to: '/storage/movies/{{ movie_name }} ({{ movie_year }})'
+    exec: |
+      sub_file=`find "{{ old_location|pathdir }}" -name "*.srt" -o -name "*.sub"`
+      ext="${sub_file: -3}"
+      if [ ! -z "${sub_file}" ]; then
+        cp "${sub_file}" "/storage/movies/{{ movie_name }} ({{ movie_year }})/{{ title }}.en.${ext}"
+      fi
 
   get_subtitles:
     priority: 10
