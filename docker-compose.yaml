@@ -1,6 +1,23 @@
 version: "2"
 
 services:
+  samba:
+    image: dperson/samba:rpi
+    restart: unless-stopped
+    command: >
+      -p
+      -w "G"
+      -s "media;/media;yes;no;yes;all;none;;media"
+    environment:
+      - USERID=1000
+      - GROUPID=1000
+    ports:
+      - 139:139
+      - 445:445
+    volumes:
+      - /usr/share/zoneinfo/America/Argentina/Buenos_Aires:/etc/localtime
+      - ${MEDIA}:/media
+
   jellyfin:
     image: linuxserver/jellyfin:arm32v7-20200404-ls55
     expose:
