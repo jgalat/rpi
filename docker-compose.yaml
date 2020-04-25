@@ -8,6 +8,7 @@ services:
       -p
       -w "G"
       -s "media;/media;yes;no;yes;all;none;;media"
+      -s "torrents;/torrents;yes;no;yes;all;none;;torrents"
     environment:
       - USERID=1000
       - GROUPID=1000
@@ -17,6 +18,7 @@ services:
     volumes:
       - /usr/share/zoneinfo/America/Argentina/Buenos_Aires:/etc/localtime
       - ${MEDIA}:/media
+      - ${STORAGE}/torrents:/torrents
 
   jellyfin:
     image: linuxserver/jellyfin:arm32v7-20200404-ls55
