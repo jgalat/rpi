@@ -21,7 +21,7 @@ services:
       - ${STORAGE}/torrents:/torrents
 
   jellyfin:
-    image: linuxserver/jellyfin:arm32v7-20200404-ls55
+    image: jellyfin/jellyfin:10.5.5-arm
     expose:
       - 8096
     hostname: raspberrypi
