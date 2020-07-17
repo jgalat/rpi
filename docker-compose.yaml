@@ -1,6 +1,16 @@
 version: "2"
 
 services:
+  duckdns:
+    image: linuxserver/duckdns
+    container_name: duckdns
+    environment:
+      - TZ=America/Argentina/Buenos_Aires
+      - SUBDOMAINS=${DUCKDNS_SUBDOMAIN}
+      - TOKEN=${DUCKDNS_TOKEN}
+      - LOG_FILE=false
+    restart: always
+
   samba:
     image: dperson/samba:rpi
     restart: unless-stopped
