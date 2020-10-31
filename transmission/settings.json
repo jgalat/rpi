@@ -1,10 +1,10 @@
 {
     "alt-speed-down": 1500,
     "alt-speed-enabled": true,
-    "alt-speed-time-begin": 660,
+    "alt-speed-time-begin": 480,
     "alt-speed-time-day": 127,
     "alt-speed-time-enabled": true,
-    "alt-speed-time-end": 300,
+    "alt-speed-time-end": 1425,
     "alt-speed-up": 20,
     "bind-address-ipv4": "0.0.0.0",
     "bind-address-ipv6": "::",
@@ -37,7 +37,7 @@
     "prefetch-enabled": true,
     "queue-stalled-enabled": true,
     "queue-stalled-minutes": 30,
-    "ratio-limit": 1.1000,
+    "ratio-limit": 1,
     "ratio-limit-enabled": true,
     "rename-partial-files": true,
     "rpc-authentication-required": true,
@@ -45,7 +45,7 @@
     "rpc-enabled": true,
     "rpc-host-whitelist": "",
     "rpc-host-whitelist-enabled": true,
-    "rpc-password": "supersecret",
+    "rpc-password": "{48822b2f35b49e65981d14a6886148922909f5812C7OgK5H",
     "rpc-port": 9091,
     "rpc-url": "/transmission/",
     "rpc-username": "admin",
@@ -65,6 +65,6 @@
     "umask": 2,
     "upload-slots-per-torrent": 14,
     "utp-enabled": true,
-    "watch-dir": "/to_download",
-    "watch-dir-enabled": false
+    "watch-dir": "/watch",
+    "watch-dir-enabled": true
 }

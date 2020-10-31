@@ -6,7 +6,7 @@ schedules:
       minutes: 30
   - tasks: [remove_complete_torrents]
     interval:
-      hours: 6
+      hours: 24
 
 templates:
   complete_downloads:
@@ -50,34 +50,6 @@ tasks:
       if [ ! -z "${sub_file}" ]; then
         cp "${sub_file}" "/storage/movies/{{ movie_name }} ({{ movie_year }})/{{ title }}.en.${ext}"
       fi
-
-  get_subtitles:
-    priority: 10
-    filesystem:
-      path:
-        - /storage/movies
-        - /storage/series
-      regexp: '.*\.(avi|mkv|mp4)$'
-      recursive: yes
-    accept_all: yes
-    seen: local
-    subliminal:
-      languages:
-        - en
-      exact_match: yes
-      providers:
-        - addic7ed
-        - opensubtitles
-        - thesubdb
-        - tvsubtitles
-      single: no
-      authentication:
-        addic7ed:
-          username: jgalat
-          password: supersecret
-        opensubtitles:
-          username: jgalat
-          password: supersecret
 
   remove_complete_torrents:
     priority: 50

@@ -31,7 +31,7 @@ services:
       - ${STORAGE}/torrents:/torrents
 
   jellyfin:
-    image: jellyfin/jellyfin:10.5.5-arm
+    image: jellyfin/jellyfin:10.6.4
     expose:
       - 8096
     hostname: raspberrypi
@@ -46,8 +46,14 @@ services:
     network_mode: "host"
 
   transmission:
-    image : jaymoulin/transmission
-    command: transmission-daemon -f -g /config
+    image : linuxserver/transmission
+    environment:
+            - PUID=1000
+            - PGID=1000
+            - TRANSMISSION_WEB_HOME=/combustion-release/
+            - TZ=America/Argentina/Buenos_Aires
+            - USER=admin
+            - PASS=supersecret
     volumes:
       - ./transmission:/config
       - ${STORAGE}/torrents:/downloads
@@ -55,21 +61,21 @@ services:
       - 9091:9091
       - 51413:51413
       - 51413:51413/udp
-    expose:
-      - 9091
     restart: unless-stopped
 
   flexget:
-    build: flexget-arm
+    image: wiserain/flexget:3.1.82
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Argentina/Buenos_Aires
+      - FG_LOG_LEVEL=error
     volumes:
       - ./flexget:/config
       - ${STORAGE}/torrents:/downloads
       - ${MEDIA}:/storage
     ports:
       - 5050:5050
-    environment:
-      - TORRENT_PLUGIN=transmission
-      - FG_WEBUI_PASSWD=superSecret421
     restart: unless-stopped
     links:
       - transmission
