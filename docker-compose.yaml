@@ -31,10 +31,9 @@ services:
       - ${STORAGE}/torrents:/torrents
 
   jellyfin:
-    image: jellyfin/jellyfin:10.6.4
-    expose:
-      - 8096
-    hostname: raspberrypi
+    image: linuxserver/jellyfin:version-10.6.4-1
+    ports:
+      - 8096:8096
     volumes:
       - ${STORAGE}/Jellyfin:/config
       - ${MEDIA}:/media
@@ -43,17 +42,16 @@ services:
       - PGID=1000
       - TZ=America/Argentina/Buenos_Aires
     restart: unless-stopped
-    network_mode: "host"
 
   transmission:
     image : linuxserver/transmission
     environment:
-            - PUID=1000
-            - PGID=1000
-            - TRANSMISSION_WEB_HOME=/combustion-release/
-            - TZ=America/Argentina/Buenos_Aires
-            - USER=admin
-            - PASS=supersecret
+      - PUID=1000
+      - PGID=1000
+      - TRANSMISSION_WEB_HOME=/combustion-release/
+      - TZ=America/Argentina/Buenos_Aires
+      - USER=admin
+      - PASS=supersecret
     volumes:
       - ./transmission:/config
       - ${STORAGE}/torrents:/downloads
