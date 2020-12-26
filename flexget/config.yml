@@ -1,59 +1,101 @@
 web_server: no
 
 schedules:
-  - tasks: [copy_series, copy_movies]
+  - tasks:
+      - series-to-media
+      - series-to-re-encode
+      - movies-to-media
+      - movies-to-re-encode
+      - subs-to-subs
     interval:
       minutes: 30
-  - tasks: [remove_complete_torrents]
+  - tasks:
+      - torrents-remove
     interval:
       hours: 24
 
 templates:
-  complete_downloads:
+  global:
+    no_entries_ok: yes
+
+  downloads-mp4:
     filesystem:
       path: /downloads/complete
-      regexp: '.*\.(avi|mkv|mp4)$'
+      regexp: '.*\.(mp4)$'
       recursive: yes
     accept_all: yes
 
-tasks:
-  copy_series:
-    priority: 1
-    no_entries_ok: yes
-    template: complete_downloads
+  downloads-mkv:
+    filesystem:
+      path: /downloads/complete
+      regexp: '.*\.(mkv)$'
+      recursive: yes
+    accept_all: yes
+
+  downloads-subs:
+    filesystem:
+      path: /downloads/complete
+      regexp: '.*\.(srt|sub|ssa)$'
+      recursive: yes
+    accept_all: yes
+
+  series:
     parsing:
       series: guessit
     all_series:
       parse_only: yes
     thetvdb_lookup: yes
     require_field: series_name
-    copy:
-      to: '/storage/series/{{ tvdb_series_name }}/Season {{ series_season }}'
-    exec: |
-      sub_file=`find "{{ old_location|pathdir }}" -name "{{ title }}.srt" -o -name "{{ title }}.sub"`
-      ext="${sub_file: -3}"
-      if [ ! -z "${sub_file}" ]; then
-        cp "${sub_file}" "/storage/series/{{ tvdb_series_name }}/Season {{ series_season }}/{{ title }}.en.${ext}"
-      fi
 
-  copy_movies:
-    priority: 1
-    no_entries_ok: yes
-    template: complete_downloads
+  movies:
     require_field: movie_name
     imdb_lookup: yes
-    copy:
-      to: '/storage/movies/{{ movie_name }} ({{ movie_year }})'
-    exec: |
-      sub_file=`find "{{ old_location|pathdir }}" -name "*.srt" -o -name "*.sub"`
-      ext="${sub_file: -3}"
-      if [ ! -z "${sub_file}" ]; then
-        cp "${sub_file}" "/storage/movies/{{ movie_name }} ({{ movie_year }})/{{ title }}.en.${ext}"
-      fi
 
-  remove_complete_torrents:
+tasks:
+  series-to-media:
+    priority: 1
+    template:
+      - downloads-mp4
+      - series
+    copy:
+      to: '/storage/media/series/{{ tvdb_series_name }}/Season {{ series_season }}'
+
+  series-to-re-encode:
+    priority: 1
+    template:
+      - downloads-mkv
+      - series
+    copy:
+      to: '/storage/re-encode/series/{{ tvdb_series_name }}/Season {{ series_season }}'
+
+  movies-to-media:
+    priority: 1
+    template:
+      - downloads-mp4
+      - movies
+    copy:
+      to: '/storage/media/movies/{{ movie_name }} ({{ movie_year }})'
+
+  movies-to-media:
+    priority: 1
+    template:
+      - downloads-mkv
+      - movies
+    copy:
+      to: '/storage/re-encode/movies/{{ movie_name }} ({{ movie_year }})'
+
+  subs-to-subs:
+    priority: 1
+    template:
+      - downloads-subs
+    exec: |
+      location={{ location }}
+      sub_location=/storage/subs/$(dirname ${location#/*/*/})
+      mkdir -p ${sub_location}
+      cp ${location} ${sub_location}
+
+  torrents-remove:
     priority: 50
-    no_entries_ok: yes
     from_transmission:
       host: transmission
       port: 9091

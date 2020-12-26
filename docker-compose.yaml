@@ -19,6 +19,8 @@ services:
       -w "G"
       -s "media;/media;yes;no;yes;all;none;;media"
       -s "torrents;/torrents;yes;no;yes;all;none;;torrents"
+      -s "re-encode;/re-encode;yes;no;yes;all;none;;re-encode"
+      -s "subs;/subs;yes;no;yes;all;none;;subs"
     environment:
       - USERID=1000
       - GROUPID=1000
@@ -27,8 +29,10 @@ services:
       - 445:445
     volumes:
       - /usr/share/zoneinfo/America/Argentina/Buenos_Aires:/etc/localtime
-      - ${MEDIA}:/media
+      - ${STORAGE}/media:/media
       - ${STORAGE}/torrents:/torrents
+      - ${STORAGE}/re-encode:/re-encode
+      - ${STORAGE}/subs:/subs
 
   jellyfin:
     image: linuxserver/jellyfin:version-10.6.4-1
@@ -36,7 +40,7 @@ services:
       - 8096:8096
     volumes:
       - ${STORAGE}/Jellyfin:/config
-      - ${MEDIA}:/media
+      - ${STORAGE}/media:/media
     environment:
       - PUID=1000
       - PGID=1000
@@ -71,7 +75,7 @@ services:
     volumes:
       - ./flexget:/config
       - ${STORAGE}/torrents:/downloads
-      - ${MEDIA}:/storage
+      - ${STORAGE}:/storage
     ports:
       - 5050:5050
     restart: unless-stopped
