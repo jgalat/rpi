@@ -3,7 +3,6 @@ version: "2"
 services:
   duckdns:
     image: linuxserver/duckdns
-    container_name: duckdns
     environment:
       - TZ=America/Argentina/Buenos_Aires
       - SUBDOMAINS=${DUCKDNS_SUBDOMAIN}
