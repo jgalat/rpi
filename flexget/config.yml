@@ -76,7 +76,7 @@ tasks:
     copy:
       to: '/storage/media/movies/{{ movie_name }} ({{ movie_year }})'
 
-  movies-to-media:
+  movies-to-re-encode:
     priority: 1
     template:
       - downloads-mkv
