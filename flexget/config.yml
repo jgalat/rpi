@@ -86,6 +86,7 @@ tasks:
 
   subs-to-subs:
     priority: 1
+    disable: [seen, seen_info_hash]
     template:
       - downloads-subs
     exec: |
