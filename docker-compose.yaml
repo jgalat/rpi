@@ -15,7 +15,7 @@ services:
     restart: unless-stopped
     command: >
       -p
-      -w "G"
+      -r
       -s "media;/media;yes;no;yes;all;none;;media"
       -s "torrents;/torrents;yes;no;yes;all;none;;torrents"
       -s "re-encode;/re-encode;yes;no;yes;all;none;;re-encode"
