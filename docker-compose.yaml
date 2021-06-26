@@ -34,7 +34,7 @@ services:
       - ${STORAGE}/subs:/subs
 
   jellyfin:
-    image: linuxserver/jellyfin:version-10.6.4-1
+    image: linuxserver/jellyfin:version-10.7.6-1
     ports:
       - 8096:8096
     volumes:
@@ -47,7 +47,7 @@ services:
     restart: unless-stopped
 
   transmission:
-    image : linuxserver/transmission
+    image: linuxserver/transmission:version-3.00-r2
     environment:
       - PUID=1000
       - PGID=1000
