@@ -1,25 +1,25 @@
-version: "2"
+version: "3"
 
 services:
-  duckdns:
-    image: linuxserver/duckdns
-    environment:
-      - TZ=America/Argentina/Buenos_Aires
-      - SUBDOMAINS=${DUCKDNS_SUBDOMAIN}
-      - TOKEN=${DUCKDNS_TOKEN}
-      - LOG_FILE=false
-    restart: always
+  godns:
+    image: timothyye/godns:v2.6
+    container_name: godns
+    restart: unless-stopped
+    volumes:
+      - ./godns/config.json:/config.json
 
   samba:
     image: dperson/samba:rpi
+    container_name: samba
     restart: unless-stopped
     command: >
       -p
       -r
-      -s "media;/media;yes;no;yes;all;none;;media"
+      -s "media0;/media0;yes;no;yes;all;none;;media0"
       -s "torrents;/torrents;yes;no;yes;all;none;;torrents"
       -s "re-encode;/re-encode;yes;no;yes;all;none;;re-encode"
       -s "subs;/subs;yes;no;yes;all;none;;subs"
+      -s "manga;/manga;yes;no;yes;all;none;;manga"
     environment:
       - USERID=1000
       - GROUPID=1000
@@ -28,44 +28,49 @@ services:
       - 445:445
     volumes:
       - /usr/share/zoneinfo/America/Argentina/Buenos_Aires:/etc/localtime
-      - ${STORAGE}/media:/media
-      - ${STORAGE}/torrents:/torrents
-      - ${STORAGE}/re-encode:/re-encode
-      - ${STORAGE}/subs:/subs
+      - ${STORAGE0}/media:/media0
+      - ${STORAGE0}/torrents:/torrents
+      - ${STORAGE0}/re-encode:/re-encode
+      - ${STORAGE0}/subs:/subs
+      - ${STORAGE0}/manga:/manga
 
   jellyfin:
-    image: linuxserver/jellyfin:version-10.7.6-1
+    image: linuxserver/jellyfin:10.7.7
+    container_name: jellyfin
+    restart: unless-stopped
     ports:
       - 8096:8096
     volumes:
-      - ${STORAGE}/Jellyfin:/config
-      - ${STORAGE}/media:/media
+      - ${STORAGE0}/Jellyfin:/config
+      - ${STORAGE0}/media:/media
     environment:
       - PUID=1000
       - PGID=1000
       - TZ=America/Argentina/Buenos_Aires
-    restart: unless-stopped
 
   transmission:
     image: linuxserver/transmission:version-3.00-r2
+    container_name: transmission
+    restart: unless-stopped
     environment:
       - PUID=1000
       - PGID=1000
       - TRANSMISSION_WEB_HOME=/combustion-release/
       - TZ=America/Argentina/Buenos_Aires
-      - USER=admin
-      - PASS=supersecret
+      - USER=$TRANSMISSION_USER
+      - PASS=$TRANSMISSION_PASSWORD
     volumes:
       - ./transmission:/config
-      - ${STORAGE}/torrents:/downloads
+      - ${STORAGE0}/torrents:/downloads
     ports:
       - 9091:9091
       - 51413:51413
       - 51413:51413/udp
-    restart: unless-stopped
 
   flexget:
-    image: wiserain/flexget:3.1.134
+    image: wiserain/flexget:3.1.151
+    container_name: flexget
+    restart: unless-stopped
     environment:
       - PUID=1000
       - PGID=1000
@@ -73,10 +78,27 @@ services:
       - FG_LOG_LEVEL=error
     volumes:
       - ./flexget:/config
-      - ${STORAGE}/torrents:/downloads
-      - ${STORAGE}:/storage
-    ports:
-      - 5050:5050
-    restart: unless-stopped
+      - ${STORAGE0}/torrents:/downloads
+      - ${STORAGE0}:/storage
     links:
       - transmission
+
+  swag:
+    image: linuxserver/swag:1.21.0
+    container_name: swag
+    restart: unless-stopped
+    cap_add:
+      - NET_ADMIN
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Argentina/Buenos_Aires
+      - URL=$SWAG_URL
+      - SUBDOMAINS=$SWAG_SUBDOMAINS
+      - VALIDATION=dns
+      - DNSPLUGIN=cloudflare
+    volumes:
+      - ./swag:/config
+    ports:
+      - 443:443
+      - 80:80

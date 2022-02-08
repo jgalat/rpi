@@ -6,6 +6,8 @@
 .gitconfig
 *.log
 .DS_Store
-flexget/*
 *.dat
+flexget/*
 transmission/*
+swag/*
+godns/*

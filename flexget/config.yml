@@ -7,6 +7,7 @@ schedules:
       - movies-to-media
       - movies-to-re-encode
       - subs-to-subs
+      - cbz-to-manga
     interval:
       minutes: 30
   - tasks:
@@ -36,6 +37,13 @@ templates:
     filesystem:
       path: /downloads/complete
       regexp: '.*\.(srt|sub|ssa)$'
+      recursive: yes
+    accept_all: yes
+
+  downloads-cbz:
+    filesystem:
+      path: /downloads/complete
+      regexp: '.*\.(cbz|png|jpg|jpeg)$'
       recursive: yes
     accept_all: yes
 
@@ -90,10 +98,21 @@ tasks:
     template:
       - downloads-subs
     exec: |
-      location={{ location }}
-      sub_location=/storage/subs/$(dirname ${location#/*/*/})
-      mkdir -p ${sub_location}
-      cp ${location} ${sub_location}
+      location="{{ location }}"
+      sub_location=/storage/subs/$(dirname "${location#/*/*/}")
+      mkdir -p "${sub_location}"
+      cp "${location}" "${sub_location}"
+
+  cbz-to-manga:
+    priority: 1
+    disable: [seen, seen_info_hash]
+    template:
+      - downloads-cbz
+    exec: |
+      location="{{ location }}"
+      manga_location=/storage/manga/$(dirname "${location#/*/*/}")
+      mkdir -p "${manga_location}"
+      cp "${location}" "${manga_location}"
 
   torrents-remove:
     priority: 50
