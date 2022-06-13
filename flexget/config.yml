@@ -10,10 +10,6 @@ schedules:
       - cbz-to-manga
     interval:
       minutes: 30
-  - tasks:
-      - torrents-remove
-    interval:
-      hours: 24
 
 templates:
   global:
@@ -113,20 +109,3 @@ tasks:
       manga_location=/storage/manga/$(dirname "${location#/*/*/}")
       mkdir -p "${manga_location}"
       cp "${location}" "${manga_location}"
-
-  torrents-remove:
-    priority: 50
-    from_transmission:
-      host: transmission
-      port: 9091
-      username: admin
-      password: "supersecret"
-    disable: [seen, seen_info_hash]
-    if:
-      - transmission_progress == 100: accept
-    transmission:
-      host: transmission
-      port: 9091
-      username: admin
-      password: "supersecret"
-      action: purge
