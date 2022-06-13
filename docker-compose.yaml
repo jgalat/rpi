@@ -35,7 +35,7 @@ services:
       - ${STORAGE0}/manga:/manga
 
   jellyfin:
-    image: linuxserver/jellyfin:10.7.7
+    image: linuxserver/jellyfin:10.8.0
     container_name: jellyfin
     restart: unless-stopped
     ports:
