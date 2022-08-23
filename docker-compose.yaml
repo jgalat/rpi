@@ -15,11 +15,7 @@ services:
     command: >
       -p
       -r
-      -s "media;/media;yes;no;yes;all;none;;media"
-      -s "torrents;/torrents;yes;no;yes;all;none;;torrents"
-      -s "re-encode;/re-encode;yes;no;yes;all;none;;re-encode"
-      -s "subs;/subs;yes;no;yes;all;none;;subs"
-      -s "manga;/manga;yes;no;yes;all;none;;manga"
+      -s "storage;/storage;yes;no;yes;all;none;;storage"
     environment:
       - USERID=1000
       - GROUPID=1000
@@ -28,14 +24,10 @@ services:
       - 445:445
     volumes:
       - /usr/share/zoneinfo/America/Argentina/Buenos_Aires:/etc/localtime
-      - ${STORAGE0}/media:/media
-      - ${STORAGE0}/torrents:/torrents
-      - ${STORAGE0}/re-encode:/re-encode
-      - ${STORAGE0}/subs:/subs
-      - ${STORAGE0}/manga:/manga
+      - ${STORAGE0}:/storage
 
   jellyfin:
-    image: linuxserver/jellyfin:10.8.0
+    image: linuxserver/jellyfin:10.8.4
     container_name: jellyfin
     restart: unless-stopped
     ports:
@@ -47,6 +39,15 @@ services:
       - PUID=1000
       - PGID=1000
       - TZ=America/Argentina/Buenos_Aires
+    devices:
+      - /dev/video10:/dev/video10
+      - /dev/video11:/dev/video11
+      - /dev/video12:/dev/video12
+      - /dev/video13:/dev/video13
+      - /dev/video14:/dev/video14
+      - /dev/video15:/dev/video15
+      - /dev/video16:/dev/video16
+      - /dev/video18:/dev/video18
 
   transmission:
     image: linuxserver/transmission:version-3.00-r2
@@ -80,11 +81,9 @@ services:
       - ./flexget:/config
       - ${STORAGE0}/torrents:/downloads
       - ${STORAGE0}:/storage
-    links:
-      - transmission
 
   swag:
-    image: linuxserver/swag:1.21.0
+    image: linuxserver/swag:1.29.0
     container_name: swag
     restart: unless-stopped
     cap_add:
