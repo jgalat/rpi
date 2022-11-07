@@ -90,7 +90,7 @@ tasks:
 
   subs-to-subs:
     priority: 1
-    disable: [seen, seen_info_hash]
+    disable: [seen]
     template:
       - downloads-subs
     exec: |
@@ -101,7 +101,7 @@ tasks:
 
   cbz-to-manga:
     priority: 1
-    disable: [seen, seen_info_hash]
+    disable: [seen]
     template:
       - downloads-cbz
     exec: |
