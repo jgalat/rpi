@@ -7,7 +7,6 @@ schedules:
       - movies-to-media
       - movies-to-re-encode
       - subs-to-subs
-      - cbz-to-manga
     interval:
       minutes: 30
 
@@ -98,14 +97,3 @@ tasks:
       sub_location=/storage/subs/$(dirname "${location#/*/*/}")
       mkdir -p "${sub_location}"
       cp "${location}" "${sub_location}"
-
-  cbz-to-manga:
-    priority: 1
-    disable: [seen]
-    template:
-      - downloads-cbz
-    exec: |
-      location="{{ location }}"
-      manga_location=/storage/manga/$(dirname "${location#/*/*/}")
-      mkdir -p "${manga_location}"
-      cp "${location}" "${manga_location}"
