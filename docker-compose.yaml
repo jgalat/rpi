@@ -1,8 +1,8 @@
-version: "3"
+version: "3.3"
 
 services:
   godns:
-    image: timothyye/godns:v2.6
+    image: timothyye/godns:2.9.4
     container_name: godns
     restart: unless-stopped
     volumes:
@@ -27,7 +27,7 @@ services:
       - ${STORAGE0}:/storage
 
   jellyfin:
-    image: linuxserver/jellyfin:10.8.4
+    image: linuxserver/jellyfin:10.8.9
     container_name: jellyfin
     restart: unless-stopped
     ports:
@@ -50,13 +50,13 @@ services:
       - /dev/video18:/dev/video18
 
   transmission:
-    image: linuxserver/transmission:version-3.00-r2
+    image: linuxserver/transmission:4.0.2
     container_name: transmission
     restart: unless-stopped
     environment:
       - PUID=1000
       - PGID=1000
-      - TRANSMISSION_WEB_HOME=/combustion-release/
+      - DOCKER_MODS=linuxserver/mods:transmission-floodui
       - TZ=America/Argentina/Buenos_Aires
       - USER=$TRANSMISSION_USER
       - PASS=$TRANSMISSION_PASSWORD
@@ -68,22 +68,25 @@ services:
       - 51413:51413
       - 51413:51413/udp
 
-  flexget:
-    image: wiserain/flexget:3.3.4
-    container_name: flexget
+  google:
+    image: google:latest
+    container_name: google
     restart: unless-stopped
     environment:
       - PUID=1000
       - PGID=1000
       - TZ=America/Argentina/Buenos_Aires
-      - FG_LOG_LEVEL=error
+      - USER=$GOOGLE_USER
+      - PASS=$GOOGLE_PASSWORD
     volumes:
-      - ./flexget:/config
-      - ${STORAGE0}/torrents:/downloads
-      - ${STORAGE0}:/storage
+      - ${STORAGE0}/google/config:/downloads
+      - ${STORAGE0}/google/downloads:/downloads
+    ports:
+      - 51414:51413
+      - 51414:51413/udp
 
   swag:
-    image: linuxserver/swag:1.29.0
+    image: linuxserver/swag:2.5.0
     container_name: swag
     restart: unless-stopped
     cap_add:
