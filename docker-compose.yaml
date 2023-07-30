@@ -79,11 +79,25 @@ services:
       - USER=$GOOGLE_USER
       - PASS=$GOOGLE_PASSWORD
     volumes:
-      - ${STORAGE0}/google/config:/downloads
+      - ${STORAGE0}/google/config:/config
       - ${STORAGE0}/google/downloads:/downloads
     ports:
       - 51414:51413
       - 51414:51413/udp
+
+  zincsearch:
+    container_name: zincsearch
+    image: public.ecr.aws/zinclabs/zincsearch:0.4.7
+    restart: unless-stopped
+    user: root
+    environment:
+      - ZINC_DATA_PATH=/var/lib/zinc
+      - ZINC_FIRST_ADMIN_USER=$ZINC_USER
+      - ZINC_FIRST_ADMIN_PASSWORD=$ZINC_PASSWORD
+    volumes:
+      - ${STORAGE0}/zinc:/var/lib/zinc
+    ports:
+      - 4080:4080
 
   swag:
     image: linuxserver/swag:2.5.0
